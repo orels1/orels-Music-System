@@ -1,0 +1,21 @@
+{
+    "name": "ORL.MusicSystem.Editor",
+    "references": [
+        "GUID:84265b35cca3905448e623ef3903f0ff",
+        "GUID:99835874ee819da44948776e0df4ff1d",
+        "GUID:e1a67d4778ffb214390ddafa61c1a557",
+        "GUID:fe32ab641f0705840b3af33ff4abe10e",
+        "GUID:3c1bc1267eab5884ebe7f232c09ee0d9"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

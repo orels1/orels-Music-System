@@ -1,0 +1,22 @@
+{
+  "name": "sh.orels.musicsystem",
+  "displayName": "ORL Music System",
+  "description": "Simple zone-based music system with events and customization",
+  "version": "1.0.0",
+  "unity": "2019.4",
+  "autor": {
+    "name": "orels1",
+    "url": "https://github.com/orels1"
+  },
+  "documentationUrl": "https://github.com/orels1/orels-Music-System",
+  "keywords": [
+    "audio",
+    "music",
+    "scripts"
+  ],
+  "license": "MIT",
+  "type": "assets",
+  "vpmDependencies": {
+    "com.vrchat.worlds": "~3.4.1"
+  }
+}
