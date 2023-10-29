@@ -6,12 +6,11 @@ namespace ORL.MusicSystem
     [CanEditMultipleObjects]
     public class LocalPlaylistEditor : PlaylistEditor
     {
-        public override void OnInspectorGUI()
+        protected override void PostHeaderGUI()
         {
             serializedObject.Update();
             EditorGUILayout.PropertyField(serializedObject.FindProperty("playerStayDelay"));
             serializedObject.ApplyModifiedProperties();
-            base.OnInspectorGUI();
         }
     }
 }

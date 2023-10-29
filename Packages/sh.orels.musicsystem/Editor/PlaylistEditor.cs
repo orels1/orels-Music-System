@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using UdonSharpEditor;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace ORL.MusicSystem
     [CanEditMultipleObjects]
     public class PlaylistEditor: Editor
     {
-        // private SerializedProperty autoPlay;
+        private SerializedProperty musicSystem;
         private SerializedProperty playlist;
         private SerializedProperty shufflePlaylist;
         private SerializedProperty volume;
@@ -35,6 +36,7 @@ namespace ORL.MusicSystem
         
         private void OnEnable()
         {
+            musicSystem = serializedObject.FindProperty("musicSystem");
             playlist = serializedObject.FindProperty("playlist");
             shufflePlaylist = serializedObject.FindProperty("shufflePlaylist");
             volume = serializedObject.FindProperty("volume");
@@ -62,6 +64,12 @@ namespace ORL.MusicSystem
         public override void OnInspectorGUI()
         {
             var t = (Playlist) target;
+
+            if (UdonSharpGUI.DrawDefaultUdonSharpBehaviourHeader(target))
+            {
+                return;
+            }
+            
             if (EditorApplication.isPlaying)
             {
                 if (t.musicSystem != null && t.musicSystem.currentPlaylist == t)
@@ -72,6 +80,34 @@ namespace ORL.MusicSystem
             }
             serializedObject.Update();
 
+            EditorGUILayout.PropertyField(musicSystem);
+            var musicSystems = GameObject.FindObjectsOfType<MusicSystem>();
+            if (musicSystems.Length == 0)
+            {
+                EditorGUILayout.HelpBox("No MusicSystem found in scene, please add one", MessageType.Error);
+                return;
+            }
+
+            if (musicSystems.Length == 1)
+            {
+                if (GUILayout.Button("Assign MusicSystem"))
+                {
+                    musicSystem.objectReferenceValue = musicSystems[0];
+                }
+            }
+
+            if (musicSystems.Length > 1)
+            {
+                EditorGUILayout.HelpBox("Multiple MusicSystems found, will need to be manually assigned", MessageType.None);
+            }
+            
+            EditorGUILayout.Space(5);
+
+            serializedObject.ApplyModifiedProperties();
+            
+            PostHeaderGUI();
+            
+            serializedObject.Update();
             
             EditorGUILayout.PropertyField(playlist);
             EditorGUILayout.PropertyField(shufflePlaylist);
@@ -130,5 +166,10 @@ namespace ORL.MusicSystem
             
             serializedObject.ApplyModifiedProperties();
         }
+        
+        protected virtual void PostHeaderGUI()
+        {
+        }
     }
+    
 }

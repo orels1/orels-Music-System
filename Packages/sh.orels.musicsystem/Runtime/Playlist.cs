@@ -8,9 +8,9 @@ using VRC.Udon;
 
 namespace ORL.MusicSystem
 {
+    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class Playlist : UdonSharpBehaviour
     {
-        [HideInInspector]
         public MusicSystem musicSystem;
 
         [HideInInspector]
