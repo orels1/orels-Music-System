@@ -1,0 +1,19 @@
+{
+  "name":"orels Music System",
+  "id":"sh.orels.musicsystem",
+  "url":"https://orels1.github.io/orels-Music-System/index.json",
+  "author":{
+      "email":"ping@orels.sh",
+      "name":"orels1",
+      "url":"https://github.com/orels1"
+  },
+  "description":"Low-overhead Open-Source multi-zone Music System",
+  "infoLink":{
+      "url":"http://github.com/orels1/orels-Music-System",
+      "text":"View on GitHub"
+  },
+  "bannerUrl":"banner.png",
+  "githubRepos":[
+      "orels1/orels-Music-System"
+  ]
+}
