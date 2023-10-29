@@ -50,7 +50,7 @@ export function Intro() {
         <IconLink href="#changelog" icon={ListIcon} className="flex-none">
           Changelog
         </IconLink>
-        <IconLink href="https://github.com/orels1/orels-MusicSystem" icon={GitHubIcon} className="flex-none">
+        <IconLink href="https://github.com/orels1/orels-Music-System" icon={GitHubIcon} className="flex-none">
           GitHub
         </IconLink>
         <IconLink href="/feed.xml" icon={FeedIcon} className="flex-none">
