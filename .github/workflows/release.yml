@@ -8,7 +8,7 @@ on:
         required: true
         type: choice
         options:
-          - sh.orels.shaders.musicsystem
+          - sh.orels.musicsystem
 
 jobs:
   pack-version:
