@@ -20,8 +20,8 @@ export function IconLink({
       {...props}
       className={clsx(
         className,
-        followTheme ? 'text-black/30' : 'text-white/30',
-        'group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium transition-colors hover:text-lime-300',
+        followTheme ? 'dark:text-white/30 text-black/30' : 'text-white/30',
+        'group relative isolate flex items-center rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium transition-colors hover:text-lime-600 dark:hover:text-lime-300',
         compact ? 'gap-x-2' : 'gap-x-3',
       )}
     >
