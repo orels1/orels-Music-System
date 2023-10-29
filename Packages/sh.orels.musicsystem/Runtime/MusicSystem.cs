@@ -226,7 +226,17 @@ namespace ORL.MusicSystem
 
         private void Update()
         {
-            if (currentPlaylist == null) return;
+            if (currentPlaylist == null)
+            {
+                if (_state == PlaybackState.FadeOut)
+                {
+                    if (DoFadeOut())
+                    {
+                        _state = PlaybackState.Idle;
+                    }
+                }
+                return;
+            }
             
             switch (_state)
             {
