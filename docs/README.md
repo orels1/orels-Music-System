@@ -26,7 +26,7 @@ Finally, open [http://localhost:3000](http://localhost:3000) in your browser to 
 
 This site's base template is a commercial product and is licensed under the [Tailwind UI license](https://tailwindui.com/license). It was customized beyond that to fit the style and requirements of the documentation.
 
-Everything else on the docs is MIT. Check the [License.md](LICENSE) file for more details.
+Everything else on the docs is MIT. Check the [License](LICENSE.md) file for more details.
 
 ## Learn more
 
