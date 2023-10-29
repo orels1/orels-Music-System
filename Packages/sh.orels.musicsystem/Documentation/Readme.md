@@ -13,6 +13,8 @@ Now configure the playlists
 - For "sub-areas" - create an object with a trigger collider and a LocalPlaylist component to it
   - Set the playerStayDelay to the amount of seconds you want the system to wait before starting to switch to that playlist (0 to switch immediately)
 
+> If you do not need a "main area" GlobalPlaylist, you can simply not add it to the scene, then when all the zones are exited - the music will simply stop
+
 The rest of the options should be explained via the component inspectors and via tooltips (most things have them, just hover!).
 
 Helper stuff:
