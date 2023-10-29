@@ -59,12 +59,21 @@ namespace ORL.MusicSystem
 
         public override void OnPlayerTriggerExit(VRCPlayerApi player)
         {
+            if (!_engaged) return;
             _stayTime = 0f;
-            SendCustomEventDelayedSeconds(nameof(SwitchBack), playerStayDelay);
+            if (playerStayDelay > 0)
+            {
+                SendCustomEventDelayedSeconds(nameof(SwitchBack), playerStayDelay);
+                return;
+            }
+            
+            Debug.Log($"[MusicSystem][{name}] Switching back");
+            musicSystem.SwitchPlaylistBack();
         }
 
         public void SwitchBack()
         {
+            if (!_engaged) return;
             // ignore cases where we re-entered
             if (Time.timeSinceLevelLoad < _lastEnterTime + playerStayDelay) return;
             

@@ -190,7 +190,10 @@ namespace ORL.MusicSystem
             if (_playlistStack.Contains(newPlaylist)) return;
             
             Debug.Log($"[MusicSystem] Switching playlist to {newPlaylist.name}");
-            ((Playlist)_playlistStack[_playlistStack.Count - 1].Reference).Disengage();
+            if (_playlistStack.Count > 0)
+            {
+                ((Playlist)_playlistStack[_playlistStack.Count - 1].Reference).Disengage();
+            }
             _playlistStack.Add(newPlaylist);
             currentPlaylist = newPlaylist;
         }
@@ -202,7 +205,12 @@ namespace ORL.MusicSystem
             ((Playlist)_playlistStack[_playlistStack.Count - 1].Reference).Disengage();
             _playlistStack.RemoveAt(_playlistStack.Count - 1);
             
-            if (_playlistStack.Count == 0) return;
+            if (_playlistStack.Count == 0)
+            {
+                Debug.Log("[MusicSystem] No playlists left, idling");
+                currentPlaylist = null;
+                return;
+            }
             currentPlaylist = (Playlist) _playlistStack[_playlistStack.Count - 1].Reference;
         }
 
@@ -359,6 +367,7 @@ namespace ORL.MusicSystem
 
         public void Pause()
         {
+            if (currentPlaylist == null) return;
             _paused = true;
             SwitchSources();   
             if (currentPlaylist.playlistSwitchOutType == PlaylistSwitchType.Fade)
@@ -373,6 +382,7 @@ namespace ORL.MusicSystem
 
         public void HardPause()
         {
+            if (currentPlaylist == null) return;
             _paused = true;
             PauseSources(currentPlaylist);
             _state = PlaybackState.Paused;
@@ -380,6 +390,7 @@ namespace ORL.MusicSystem
 
         public void Unpause()
         {
+            if (currentPlaylist == null) return;
             if (!_paused) return;
             _paused = false;
             // if (_sourceARef.clip == null)

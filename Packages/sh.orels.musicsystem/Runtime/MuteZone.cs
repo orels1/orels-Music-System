@@ -19,6 +19,7 @@ namespace ORL.MusicSystem
         
         private float _stayTime;
         private float _lastEnterTime;
+        private bool _engaged;
         
         public override void OnPlayerTriggerEnter(VRCPlayerApi player)
         {
@@ -40,12 +41,14 @@ namespace ORL.MusicSystem
             {
                 musicSystem.Pause();
             }
+            _engaged = true;
         }
 
         private bool _pauseAttempted;
 
         public override void OnPlayerTriggerStay(VRCPlayerApi player)
         {
+            if (_engaged) return;
             if (playerStayDelay > 0f)
             {
                 _stayTime += Time.deltaTime;
@@ -53,6 +56,7 @@ namespace ORL.MusicSystem
                 {
                     Debug.Log($"[MusicSystem][{name}] Stay time ended, pausing");
                     _pauseAttempted = true;
+                    _engaged = true;
                     if (hardPause)
                     {
                         musicSystem.HardPause();
@@ -67,12 +71,21 @@ namespace ORL.MusicSystem
 
         public override void OnPlayerTriggerExit(VRCPlayerApi player)
         {
+            if (!_engaged) return;
             _stayTime = 0f;
-            SendCustomEventDelayedSeconds(nameof(Unpause), playerStayDelay);
+            if (playerStayDelay > 0)
+            {
+                SendCustomEventDelayedSeconds(nameof(Unpause), playerStayDelay);
+                return;
+            }
+
+            _engaged = false;
         }
 
         public void Unpause()
         {
+            if (!_engaged) return;
+            _engaged = false;
             // ignore cases where we re-entered
             if (Time.timeSinceLevelLoad < _lastEnterTime + playerStayDelay) return;
             
