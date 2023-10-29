@@ -5,6 +5,7 @@ using UnityEngine;
 namespace ORL.MusicSystem
 {
     [CustomEditor(typeof(Playlist))]
+    [CanEditMultipleObjects]
     public class PlaylistEditor: Editor
     {
         // private SerializedProperty autoPlay;

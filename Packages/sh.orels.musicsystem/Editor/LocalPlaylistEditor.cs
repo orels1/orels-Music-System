@@ -3,6 +3,7 @@
 namespace ORL.MusicSystem
 {
     [CustomEditor(typeof(LocalPlaylist))]
+    [CanEditMultipleObjects]
     public class LocalPlaylistEditor : PlaylistEditor
     {
         public override void OnInspectorGUI()
