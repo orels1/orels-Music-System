@@ -6,6 +6,7 @@ using VRC.Udon;
 
 namespace ORL.MusicSystem
 {
+    [HelpURL("https://musicsystem.orels.sh/docs/#local-playlist")]
     public class LocalPlaylist : Playlist
     {
         [Header("Zone Settings")]

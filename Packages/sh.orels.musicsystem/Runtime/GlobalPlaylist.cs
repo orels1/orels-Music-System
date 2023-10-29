@@ -8,6 +8,7 @@ using VRC.Udon;
 
 namespace ORL.MusicSystem
 {
+    [HelpURL("https://musicsystem.orels.sh/docs/#global-playlist")]
     public class GlobalPlaylist : Playlist
     {
         public bool autoPlay = true;

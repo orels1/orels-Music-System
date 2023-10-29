@@ -33,6 +33,8 @@ namespace ORL.MusicSystem
         private SerializedProperty longBreakTrackCount;
         private SerializedProperty longBreakResetOnSwitch;
         private SerializedProperty longBreakTime;
+
+        private bool _showSwitchHelp;
         
         private void OnEnable()
         {
@@ -60,6 +62,8 @@ namespace ORL.MusicSystem
             longBreakTrackCount = serializedObject.FindProperty("longBreakTrackCount");
             longBreakResetOnSwitch = serializedObject.FindProperty("longBreakResetOnSwitch");
             longBreakTime = serializedObject.FindProperty("longBreakTime");
+
+            _showSwitchHelp = false;
         }
         public override void OnInspectorGUI()
         {
@@ -114,21 +118,28 @@ namespace ORL.MusicSystem
             EditorGUILayout.PropertyField(volume);
             EditorGUILayout.HelpBox("This sets the final volume of the Audio Source", MessageType.None);
 
-            EditorGUILayout.PropertyField(playlistSwitchInType);
+            EditorGUILayout.PropertyField(playlistSwitchInType, new GUIContent("Switch In"));
             if (playlistSwitchInType.enumValueIndex == 1)
             {
-                EditorGUILayout.PropertyField(playlistSwitchInFadeTime);
+                EditorGUILayout.PropertyField(playlistSwitchInFadeTime, new GUIContent("Fade Time"));
             }
             
-            EditorGUILayout.PropertyField(playlistSwitchOutType);
+            EditorGUILayout.PropertyField(playlistSwitchOutType, new GUIContent("Switch Out"));
             if (playlistSwitchOutType.enumValueIndex == 1)
             {
-                EditorGUILayout.PropertyField(playlistSwitchOutFadeTime);
+                EditorGUILayout.PropertyField(playlistSwitchOutFadeTime, new GUIContent("Fade Time"));
             }
-            
-            EditorGUILayout.HelpBox("This section controls how the playlist will be switched in and out of\nThe fade setting will make the music fade in or out when entering/exiting this playlist's effect area\nIf the playlist is global, this will happen when entering any local playlist or exiting back out of all of them", MessageType.None);
 
-            EditorGUILayout.PropertyField(trackTransitionType);
+            if (GUILayout.Button(_showSwitchHelp ? "Hide Help" : "Show Switch Help"))
+            {
+                _showSwitchHelp = !_showSwitchHelp;
+            }
+            if (_showSwitchHelp)
+            {
+                EditorGUILayout.HelpBox("This section controls how the playlist will be switched in and out of\nThe fade setting will make the music fade in or out when entering/exiting this playlist's effect area\nIf the playlist is global, this will happen when entering any local playlist or exiting back out of all of them", MessageType.None);
+            }
+
+            EditorGUILayout.PropertyField(trackTransitionType, new GUIContent("Transition Type"));
             switch (trackTransitionType.enumValueIndex)
             {
                 case 0:
@@ -143,11 +154,13 @@ namespace ORL.MusicSystem
                     break;
             }
             
+            EditorGUILayout.HelpBox("This controls the transition between tracks", MessageType.None);
+            
             EditorGUILayout.PropertyField(randomizePause);
             if (randomizePause.boolValue)
             {
-                EditorGUILayout.PropertyField(randomizePauseMin);
-                EditorGUILayout.PropertyField(randomizePauseMax);
+                EditorGUILayout.PropertyField(randomizePauseMin, new GUIContent("Pause Min"));
+                EditorGUILayout.PropertyField(randomizePauseMax, new GUIContent("Pause Max"));
             }
             else
             {
@@ -159,9 +172,9 @@ namespace ORL.MusicSystem
             EditorGUILayout.PropertyField(longBreak);
             if (longBreak.boolValue)
             {
-                EditorGUILayout.PropertyField(longBreakTrackCount);
-                EditorGUILayout.PropertyField(longBreakResetOnSwitch);
-                EditorGUILayout.PropertyField(longBreakTime);
+                EditorGUILayout.PropertyField(longBreakTrackCount, new GUIContent("Track Count"));
+                EditorGUILayout.PropertyField(longBreakResetOnSwitch, new GUIContent("Reset on Switch"));
+                EditorGUILayout.PropertyField(longBreakTime, new GUIContent("Break Time"));
             }
             
             serializedObject.ApplyModifiedProperties();

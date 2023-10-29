@@ -34,6 +34,7 @@ namespace ORL.MusicSystem
     }
     
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
+    [HelpURL("https://musicsystem.orels.sh/docs/#music-playlist")]
     public class MusicSystem : UdonSharpBehaviour
     {
         public AudioSource sourceA;

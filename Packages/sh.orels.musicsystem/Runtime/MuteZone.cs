@@ -6,9 +6,10 @@ using VRC.Udon;
 
 namespace ORL.MusicSystem
 {
+    [HelpURL("https://musicsystem.orels.sh/docs/#mute-zone")]
+    [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
     public class MuteZone : UdonSharpBehaviour
     {
-        [HideInInspector]
         public MusicSystem musicSystem;
         
         [Header("Zone Settings")]
