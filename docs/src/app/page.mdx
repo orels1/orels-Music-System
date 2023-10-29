@@ -1,0 +1,75 @@
+import { SparkleIcon } from '@/components/SparkleIcon'
+import { BoltIcon } from '@/components/BoltIcon'
+
+export { Layout as default } from '@/components/Layout'
+
+---
+
+## Installation {{ date: '2025-01-01T00:00Z', label: 'Get Started' }}
+
+- Add to the VRChat Creator Companion using this link: [Add to the VCC](vcc://vpm/addRepo?url=https://orels1.github.io/orels-Music-System/index.json)
+- Make sure the "orels-Music-System" Repository is added and selected in the Settings screen
+- Open your World project and add the "ORL Music System" Package
+
+## Setup
+
+- Make a new GameObject and add the `MusicSystem` component to it
+- Create two AudioSources, set them to 2D and set everything else the way you like
+- Drag the AudioSources into the MusicSystem's `Source A` and `Source B` slots
+
+![Music System Setup](@/images/image.png "Music System Setup")
+
+Now let's add some music that will play all across your world!
+
+- Create another GameObject anywhere in the scene and add the `GlobalPlaylist` component to it
+- Set the Music System reference to your MusicSystem GameObject. If you only have one - a button will be shown to quickly assign it
+- Add your Audio Clips to the `Playlist` array
+- Configure the settings to your liking
+
+![Example of a Global Playlist](@/images/image-1.png "Example of a Global Playlist")
+
+> **Most settings have tooltips or other help messages!**
+
+If you need localized music playback for specific areas of your world - you can utilize `LocalPlaylist` components
+
+- Add the `LocalPlaylist` component to any GameObject
+- Configure it similarly to the `GlobalPlaylist` component
+- Add a Trigger Collider to the same game object, and you should be good to go!
+
+
+If you ever need to stop the music when the player enters an area - you can use the `MuteZone` component
+
+- Add `MuteZone` to any GameObject with a Trigger collider and it should work automatically
+
+![MuteZone Example](@/images/image-2.png "MuteZone Example")
+
+**That's it for a general overview! If you want to learn about all the settings - check out the [full docs](/docs)**
+
+If you ever encounter any issues - [hop by the Discord](https://discord.gg/orels1) and ask for help!
+
+---
+
+## Changelog {{ label: 'Changelog' }}
+
+Below are the changelogs for all of the releases of orels Music System
+
+---
+
+![v1.0.0 Release](@/images/image-3.png "v1.0.0 Release")
+
+## v1.0.0 Release {{ date: '2023-10-27T00:00Z' }}
+
+First release of orels Music System!
+I always wanted to make something like this for my own worlds, but never got around to it.
+
+Recently - my friend Fins asked for such a system for his new world - Complex 7 and I had to help! What you see here is the initial version of the system mostly tailored to his needs.
+
+There are many new features I'd like to add in the future, but this should be a good first step
+
+### <BoltIcon /> New Features
+
+- GlobalPlaylist to play music everywhere in the World. Most useful for "main area" background music where making a giant collider is inconvenient
+- LocalPlaylist to play music in a specific area of the World. Has an ability to define the minimum amount of time the player must be in the area for the music to transition.
+- Support for multiple MusicSystems. E.g. one for actual music and one for ambient sounds
+- MuteZone to stop any music playback when entering an area
+- Some basic public api to Pause and Resume music playback

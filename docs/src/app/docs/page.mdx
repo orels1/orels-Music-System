@@ -1,0 +1,151 @@
+export { DocsLayout as default } from '@/components/DocsLayout'
+
+## Get Started
+
+### Installation
+
+- Add to the VRChat Creator Companion using this link: [Add to the VCC](vcc://vpm/addRepo?url=https://orels1.github.io/orels-Music-System/index.json)
+- Make sure the "orels-Music-System" Repository is added and selected in the Settings screen
+- Open your World project and add the "ORL Music System" Package
+
+### Basic Setup
+
+- Make a new GameObject and add the `MusicSystem` component to it
+- Create two AudioSources, set them to 2D and set everything else the way you like
+- Drag the AudioSources into the MusicSystem's `Source A` and `Source B` slots
+
+![Music System Setup](@/images/image.png "Music System Setup")
+
+Now let's add some music that will play all across your world!
+
+- Create another GameObject anywhere in the scene and add the `GlobalPlaylist` component to it
+- Set the Music System reference to your MusicSystem GameObject. If you only have one - a button will be shown to quickly assign it
+- Add your Audio Clips to the `Playlist` array
+- Configure the settings to your liking
+
+![Example of a Global Playlist](@/images/image-1.png "Example of a Global Playlist")
+
+> **Most settings have tooltips or other help messages!**
+
+If you need localized music playback for specific areas of your world - you can utilize `LocalPlaylist` components
+
+- Add the `LocalPlaylist` component to any GameObject
+- Configure it similarly to the `GlobalPlaylist` component
+- Add a Trigger Collider to the same game object, and you should be good to go!
+
+
+If you ever need to stop the music when the player enters an area - you can use the `MuteZone` component
+
+- Add `MuteZone` to any GameObject with a Trigger collider and it should work automatically
+
+![MuteZone Example](@/images/image-2.png "MuteZone Example")
+
+**That's it for a general overview! If you want to learn about all the settings - keep reading!**
+
+If you ever encounter any issues - [hop by the Discord](https://discord.gg/orels1) and ask for help!
+
+## Components
+
+### Music System
+
+![Music System Component](@/images/image-4.png "Music System Component")
+
+> Music System component is the heart of the whole system. It is the only component that runs an Update loop, coordinates the various playlists and manages the Audio Sources
+
+#### Configuration
+
+The only options available are the two Audio Sources that will be used for playback
+
+- **Source A**
+- **Source B**
+
+#### Runtime
+
+When entering Play mode - the Music System component will show some information about its state
+
+![Music System during Play mode](@/images/image-5.png "Music System during Play mode")
+
+### Playlist Options
+
+Every "Playlist" component (e.g. Global Playlist and Local Playlist) share the following set of options
+
+![Playlist Options as visible on a Global Playlist](@/images/image-6.png "Playlist Options as visible on a Global Playlist")
+
+- **Music System**: Reference to a Music System that will be used for playback. You can have multiple Music Systems in your scene to have simultaneous playback of multiple clips
+- **Playlist**: Contains all the tracks that will be played
+- **Shuffle Playlist**: Shuffles the playlist on load and every time the end is reached
+- **Volume**: Sets the final volume of the AudioSource when playing this playlist
+- Playlist Switching: This section controls how the playlist behaves when switching from and to it
+  - **Switch In**: Sets the type of transition when switching to this playlist
+    - Cut: switches immediately
+    - Fade: fades the music in gradually when switching to the playlist
+    - **Fade Time**: Controls how long the fade in lasts. Only visible when **Switch In** is set to **Fade**
+  - **Switch Out**: Same as **Switch In** but for when switching out of this playlist to something else
+- Transitions: This section controls how playlist switches between tracks
+  - **Transition Type**: Sets how the tracks are blended together
+    - Cut: switches immediately
+    - Fade: fades the music out and in when switching between tracks
+    - Cross Fade: fades in and out simultaneously, allowing for a smooth transition
+  - **Fade Time**: Controls how long the fade out and fade in lasts. Only visible when **Transition Type** us set to **Fade**
+  - **Cross Fade Curve**: Controls the cross-fade blend. Only visible when **Transition Type** us set to **Cross Fade**.
+    - When the Curve is at Time 0 (far left) and at Value 0 (bottom) - the Track B (current track) is at 100% and Track A (next track) is at 0%
+    - When the Curve is at Time 1 (far right) and at Value 1 (top) - the Track B (current track) is at 0% and Track A (next track) is at 100%
+    - This allows you to create custom cross-fade curves and blend the tracks in any way you like
+  - **Cross Fade Time**: Controls how long the cross-fade lasts. Only visible when **Transition Type** us set to **Cross Fade**
+- Music Breaks: This section controls any pauses between individual tracks
+  - **Randomize Pause**: Enables randomisation of the pause time between tracks
+    - **Pause Min**: Minimum possible pause time
+    - **Pause Max**: Maximum possible pause time
+  - **Static Pause**: If set to anything above 0 - adds a pause between trecks for the specified time in seconds
+- Long Break: This section controls a long pause between tracks after X amount of tracks were played
+  - **Long Break**: Enables the long break
+  - **Track Count**: Defines how many tracks will be played before doing a long break
+  - **Reset on Switch**: If enabled - the track count will reset when switching to another playlist. In practical terms, this means that the player will need to listen to X tracks in a row before the long break will trigger
+  - **Break Time**: Duration of the long break in seconds
+
+### Global Playlist
+
+> Global Playlist component is used to play music across the whole world. It is the simplest way to get started with the Music System
+
+#### Configuration
+
+Beyond the options listed in the [Playlist Options](#playlist-options) section, Global Playlist provides the following settings
+
+- **Auto Play**: Starts the playlist automatically when entering Play mode / loading the world
+
+### Local Playlist
+
+> Local Playlist component is used to play music in a particular area defined by a collider. It is useful for creating localized music playback
+
+#### Usage
+
+- Add the Local Playlist component to any GameObject
+- Add a Trigger collider of some sort to the same GameObject
+- Set the Layer of the GameObject to "MirrorReflection"
+
+#### Configuration
+
+Beyond the options listed in the [Playlist Options](#playlist-options) section, Global Playlist provides the following settings
+
+- Zone Settings
+  - **Player Stay Delay**: Controls how long the player must be present in the zone before the playlist starts playing
+
+### Mute Zone
+
+![Mute Zone Component](@/images/image-7.png "Mute Zone Component")
+
+> Mute Zone allows you to easily mute all music when entering an area
+
+#### Usage
+
+- Add a Mute Zone component to any GameObject
+- Add a Trigger collider of some sort to the same GameObject
+- Set the Music System to the Music System you would like to mute
+  - If you want to mute more than 1 Music System - you can add multiple Mute Zone components to the same GameObject
+
+#### Configuration
+
+- **Music System**: Reference to a Music System that will be muted when entering the zone
+- Zone Settings
+  - **Player Stay Delay**: Controls how long the player must be present in the zone before the music is muted
+- **Hard Pause**: If enabled - the music will be cut immediately as soon as **Player Stay Delay** passes. Otherwise - the music will follow the playlist switching rules and fade out if necessary
