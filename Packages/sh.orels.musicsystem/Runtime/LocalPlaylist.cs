@@ -28,6 +28,7 @@ namespace ORL.MusicSystem
         
         public override void OnPlayerTriggerEnter(VRCPlayerApi player)
         {
+            if (!player.isLocal) return;
             _lastEnterTime = Time.timeSinceLevelLoad;
             if (playerStayDelay > 0f)
             {
@@ -45,6 +46,7 @@ namespace ORL.MusicSystem
 
         public override void OnPlayerTriggerStay(VRCPlayerApi player)
         {
+            if (!player.isLocal) return;
             if (_engaged) return;
             if (playerStayDelay > 0f)
             {
@@ -60,6 +62,7 @@ namespace ORL.MusicSystem
 
         public override void OnPlayerTriggerExit(VRCPlayerApi player)
         {
+            if (!player.isLocal) return;
             if (!_engaged) return;
             _stayTime = 0f;
             if (playerStayDelay > 0)
