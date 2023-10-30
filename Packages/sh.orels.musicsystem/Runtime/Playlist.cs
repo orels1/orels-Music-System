@@ -212,6 +212,14 @@ namespace ORL.MusicSystem
         {
             Debug.Log($"[MusicSystem][{name}] Track Ended");
 
+            // If the system is paused - it is taking controll atm
+            if (musicSystem.Paused)
+            {
+                _waitFor = -1;
+                _pauseTimer = 1;
+                return PlaybackState.Paused;
+            }
+
             if (musicSystem.Switching)
             {
                 return HandleSwitchIn(currentState);
@@ -223,7 +231,7 @@ namespace ORL.MusicSystem
                 pauseFor = longBreakTime;
                 Debug.Log($"[MusicSystem][{name}] Long break for {pauseFor} seconds");
             }
-            if (pauseFor > 0 || musicSystem.Paused)
+            if (pauseFor > 0)
             {
                 _pauseTimer = 0;
                 _waitFor = pauseFor;
