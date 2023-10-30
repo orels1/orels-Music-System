@@ -35,7 +35,7 @@ namespace ORL.MusicSystem
                 {
                     var waitFor = (float) currPlaylist.GetType()
                         .GetField("_waitFor", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(currPlaylist);
-                    var pauseTimer = (float) tType.GetField("_pauseTimer", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(target);
+                    var pauseTimer = (float) currPlaylist.GetType().GetField("_pauseTimer", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(currPlaylist);
                     var timeLeft = waitFor - pauseTimer;
                     EditorGUILayout.LabelField("Waiting For", TimeSpan.FromSeconds(timeLeft).ToString("g"));
                 }
