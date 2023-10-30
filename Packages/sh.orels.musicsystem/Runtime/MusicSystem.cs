@@ -62,11 +62,6 @@ namespace ORL.MusicSystem
 
         private bool _paused;
         public bool Paused => _paused;
-        
-        private void Start()
-        {
-            _playlistStack = new DataList();
-        }
 
         public bool PlayTrack(AudioClip track)
         {
@@ -180,6 +175,10 @@ namespace ORL.MusicSystem
         
         public void SwitchPlaylist(Playlist newPlaylist)
         {
+            if (_playlistStack == null)
+            {
+                _playlistStack = new DataList();
+            }
             if (currentPlaylist == null)
             {
                 _playlistStack.Add(newPlaylist);
