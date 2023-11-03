@@ -34,7 +34,7 @@ namespace ORL.MusicSystem
     }
     
     [UdonBehaviourSyncMode(BehaviourSyncMode.NoVariableSync)]
-    [HelpURL("https://musicsystem.orels.sh/docs/#music-playlist")]
+    [HelpURL("https://musicsystem.orels.sh/docs/#music-system")]
     public class MusicSystem : UdonSharpBehaviour
     {
         public AudioSource sourceA;
@@ -42,8 +42,6 @@ namespace ORL.MusicSystem
 
         [NonSerialized]
         public Playlist currentPlaylist;
-        [NonSerialized]
-        public Playlist lastPlaylist;
 
         private PlaybackState _state;
         
@@ -54,7 +52,14 @@ namespace ORL.MusicSystem
 
         private float _sourceVolume = 1f;
 
-        public float PlaybackTime => GetPlayingSource().time;
+        public float PlaybackTime
+        {
+            get { 
+                var playingSource = GetPlayingSource();
+                return playingSource == null ? 0f : playingSource.time;
+            }
+        }
+
         private bool _switching = false;
         public bool Switching => _switching;
 
@@ -62,6 +67,13 @@ namespace ORL.MusicSystem
 
         private bool _paused;
         public bool Paused => _paused;
+
+        // Unity does not allow to seek the audi source that was not playing on the same frame
+        // As a result - we save the resume time and seek on the next frame
+        private float _resumeTime;
+        // We also have to save volume if we're using a CUT switch
+        // Otherwise there will be an audible pop for 1 frame
+        private float _resumeVolume;
 
         public bool PlayTrack(AudioClip track)
         {
@@ -74,12 +86,24 @@ namespace ORL.MusicSystem
             return true;
         }
 
-        public bool SwitchTrack(AudioClip newTrack, float volume)
+        public bool SwitchTrack(AudioClip newTrack, float volume, float resumeTime)
         {
             if (PlayTrack(newTrack))
             {
                 _sourceARef.Play();
-                _sourceARef.volume = volume;
+                
+                // will seek 1 frame later
+                if (resumeTime > 0f)
+                {
+                    _sourceARef.volume = 0f;
+                    _resumeVolume = volume;
+                    _resumeTime = resumeTime;
+                    SendCustomEventDelayedFrames(nameof(ResumeTrack), 1);
+                }
+                else
+                {
+                    _sourceARef.volume = volume;
+                }
                 return true;
             }
 
@@ -92,12 +116,18 @@ namespace ORL.MusicSystem
         }
         
         private float _fadeTime;
-        public bool FadeTrack(AudioClip newTrack, float fadeTime, float volume)
+        public bool FadeTrack(AudioClip newTrack, float fadeTime, float volume, float resumeTime)
         {
             _fadeTime = fadeTime;
             _sourceVolume = volume;
             
-            Debug.Log($"[MusicSystem] Fading in track {newTrack.name} with {fadeTime} fade time and volume {volume}");
+            Debug.Log($"[MusicSystem] Fading in track {newTrack.name} with {fadeTime} fade time, volume {volume} at time {resumeTime}");
+            
+            if (resumeTime > 0f)
+            {
+                _resumeTime = resumeTime;
+                SendCustomEventDelayedFrames(nameof(ResumeTrack), 1);
+            }
 
             return PlayTrack(newTrack);
         }
@@ -111,6 +141,17 @@ namespace ORL.MusicSystem
             _sourceVolume = volume;
 
             return PlayTrack(newTrack);
+        }
+
+        public void ResumeTrack()
+        {
+            _sourceARef.time = _resumeTime;
+            if (_resumeVolume > 0f)
+            {
+                _sourceARef.volume = _resumeVolume;
+            }
+            _resumeTime = 0f;
+            _resumeVolume = 0f;
         }
 
         public void SetState(Playlist sender, PlaybackState newState)
@@ -173,7 +214,7 @@ namespace ORL.MusicSystem
             GetPlayingSource().Pause();
         }
         
-        public void SwitchPlaylist(Playlist newPlaylist)
+        public bool SwitchPlaylist(Playlist newPlaylist)
         {
             if (_playlistStack == null)
             {
@@ -181,13 +222,26 @@ namespace ORL.MusicSystem
             }
             if (currentPlaylist == null)
             {
+                Debug.Log($"[MusicSystem] Current playlist was empty, switching to {newPlaylist.name}");
                 _playlistStack.Add(newPlaylist);
                 currentPlaylist = newPlaylist;
+                
+                // We can be still fading out after passing through an idle zone
+                if (_state == PlaybackState.FadeOut)
+                {
+                    Debug.Log("[MusicSystem] Currently fading out, wait for that to pass");
+                    return true;
+                }
+                
                 newPlaylist.Engage();
-                return;
+                return true;
             }
 
-            if (_playlistStack.Contains(newPlaylist)) return;
+            if (_playlistStack.Contains(newPlaylist))
+            {
+                Debug.Log($"[MusicSystem] Playlist {newPlaylist.name} already in stack, ignoring");
+                return false;
+            }
             
             Debug.Log($"[MusicSystem] Switching playlist to {newPlaylist.name}");
             if (_playlistStack.Count > 0)
@@ -196,11 +250,40 @@ namespace ORL.MusicSystem
             }
             _playlistStack.Add(newPlaylist);
             currentPlaylist = newPlaylist;
+            return true;
         }
 
-        public void SwitchPlaylistBack()
+        public bool SwitchPlaylistBack()
         {
-            if (_playlistStack.Count == 0) return;
+            if (_playlistStack.Count == 0) return false;
+
+            var currentPlayingSource = GetPlayingSource();
+            // if fading out last playlist
+            // the new playlist is not engaged yet
+            // and there is enough time left in the track
+            // gracefully fade back in
+            if (currentPlayingSource != null &&
+                _state == PlaybackState.FadeOut &&
+                _playlistStack.Count > 1 &&
+                !currentPlaylist.Engaged
+            )
+            {
+                var lastPlaylist = (Playlist) _playlistStack[_playlistStack.Count - 1].Reference;
+                if (currentPlayingSource.clip.length - currentPlayingSource.time >= lastPlaylist.EndThreshold)
+                {
+                    _state = PlaybackState.FadeIn;
+                    currentPlaylist = lastPlaylist;
+                    var swapSourceA = _sourceARef;
+                    _sourceARef = _sourceBRef;
+                    _sourceBRef = swapSourceA;
+                    // we need to manually set the fade timer to start from a correct spot
+                    _fadeTimer = Mathf.Lerp(0f, _sourceVolume, currentPlayingSource.volume) * _fadeTime;
+                    _playlistStack.RemoveAt(_playlistStack.Count - 1);
+                    Debug.Log("[MusicSystem] Old playlist still fading out, fading back in");
+                    return true;
+                }
+            }
+            
             
             ((Playlist)_playlistStack[_playlistStack.Count - 1].Reference).Disengage();
             _playlistStack.RemoveAt(_playlistStack.Count - 1);
@@ -209,18 +292,21 @@ namespace ORL.MusicSystem
             {
                 Debug.Log("[MusicSystem] No playlists left, idling");
                 currentPlaylist = null;
-                return;
+                return true;
             }
             currentPlaylist = (Playlist) _playlistStack[_playlistStack.Count - 1].Reference;
+
+            return true;
         }
 
-        public void FadeOut(float time)
+        public void FadeOut(float time, float targetVolume)
         {
             if (_sourceARef.isPlaying)
             {
                 SwitchSources();
             }
             _fadeTime = time;
+            _fadeTimer = Mathf.Lerp(targetVolume, 0f, _sourceBRef.volume) * _fadeTime;
             _state = PlaybackState.FadeOut;
         }
 
@@ -298,7 +384,9 @@ namespace ORL.MusicSystem
             if (!_sourceARef.isPlaying)
             {
                 _sourceARef.volume = 0;
+                var resumeTime = _sourceARef.time;
                 _sourceARef.Play();
+                _sourceARef.time = resumeTime;
                 _fadeTimer = 0;
             }
 

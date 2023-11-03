@@ -70,6 +70,10 @@ namespace ORL.MusicSystem
         protected int _trackIndex;
         protected int _totalTracksPlayed;
         protected bool _engaged;
+        // this is set when the playlist triggered a successful switch but has not engaged yet
+        protected bool _engaging;
+
+        public bool Engaged => _engaged;
         
         protected float _pauseTimer;
         protected float _waitFor;
@@ -89,15 +93,18 @@ namespace ORL.MusicSystem
 
         public virtual void Engage()
         {
+            Debug.Log($"[MusicSystem][{name}] Engaged");
             _engaged = true;
+            _engaging = false;
             musicSystem.SetSwitching(false);
-            _playbackTime = 0;
         }
 
         public virtual void Disengage()
         {
             _engaged = false;
-            _playbackTime = musicSystem.PlaybackTime;
+            _engaging = false;
+            _playbackTime = musicSystem.PlaybackTime +
+                            (playlistSwitchOutType == PlaylistSwitchType.Fade ? playlistSwitchOutFadeTime : 0f);
             musicSystem.SetSwitching(true);
             if (longBreakResetOnSwitch)
             {
@@ -108,7 +115,7 @@ namespace ORL.MusicSystem
             switch (playlistSwitchOutType)
             {
                 case PlaylistSwitchType.Fade:
-                    musicSystem.FadeOut(playlistSwitchOutFadeTime);
+                    musicSystem.FadeOut(playlistSwitchOutFadeTime, volume);
                     break;
                 case PlaylistSwitchType.Cut:
                     Debug.Log($"[MusicSystem][{name}] Cutting playlist");
@@ -143,12 +150,28 @@ namespace ORL.MusicSystem
                 return HandleSwitchIn(currentState);
             }
             
-            var newTrack = _shuffledPlaylist[ScheduleNextTrack()];
-
+            var currTrackTimeRemaining = _shuffledPlaylist[_trackIndex].length - _playbackTime;
+            var canResume = _playbackTime > 0f && currTrackTimeRemaining > playlistSwitchInFadeTime &&
+                            currTrackTimeRemaining > EndThreshold;  
+            
+            AudioClip newTrack;
+            if (!canResume)
+            {
+                _playbackTime = 0f;
+                newTrack = _shuffledPlaylist[ScheduleNextTrack()];
+                Debug.Log($"[MusicSystem][{name}] Can't resume, scheduling next track");
+            }
+            else
+            {
+                _trackIndex = Mathf.Max(0, _trackIndex - 1);
+                newTrack = _shuffledPlaylist[_trackIndex];
+                Debug.Log($"[MusicSystem][{name}] Can resume from {_playbackTime} in {newTrack.name}");
+            }
+            
             switch (trackTransitionType)
             {
                 case SwitchType.Fade:
-                    if (musicSystem.FadeTrack(newTrack, fadeTime, volume))
+                    if (musicSystem.FadeTrack(newTrack, fadeTime, volume, _playbackTime))
                     {
                         _trackIndex++;
                         _totalTracksPlayed++;
@@ -157,7 +180,7 @@ namespace ORL.MusicSystem
                     return currentState;
                 // can't cross-fade if the playlist was paused/stopped
                 case SwitchType.CrossFade:
-                    if (musicSystem.FadeTrack(newTrack, crossFadeTime, volume))
+                    if (musicSystem.FadeTrack(newTrack, crossFadeTime, volume, _playbackTime))
                     {
                         _trackIndex++;
                         _totalTracksPlayed++;
@@ -165,7 +188,7 @@ namespace ORL.MusicSystem
                     }
                     return currentState;
                 case SwitchType.Cut:
-                    if (musicSystem.SwitchTrack(newTrack, volume))
+                    if (musicSystem.SwitchTrack(newTrack, volume, _playbackTime))
                     {
                         _trackIndex++;
                         _totalTracksPlayed++;
@@ -180,25 +203,44 @@ namespace ORL.MusicSystem
 
         private PlaybackState HandleSwitchIn(PlaybackState currentState)
         {
-            var newTrack = _shuffledPlaylist[ScheduleNextTrack()];
+            var currTrackTimeRemaining = _shuffledPlaylist[_trackIndex].length - _playbackTime;
+            var canResume = _playbackTime > 0f && currTrackTimeRemaining > playlistSwitchInFadeTime &&
+                            currTrackTimeRemaining > EndThreshold;
+            
+            AudioClip newTrack;
+            if (!canResume)
+            {
+                _playbackTime = 0f;
+                newTrack = _shuffledPlaylist[ScheduleNextTrack()];
+                Debug.Log("[MusicSystem][{name}] Can't resume, scheduling next track");
+            }
+            else
+            {
+                _trackIndex = Mathf.Max(0, _trackIndex - 1);
+                newTrack = _shuffledPlaylist[_trackIndex];
+                Debug.Log($"[MusicSystem][{name}] Can resume from {_playbackTime} in {newTrack.name}");
+            }
+            
             Debug.Log($"[MusicSystem][{name}] System is switching - perform special handling");
             switch (playlistSwitchInType)
             {
                 case PlaylistSwitchType.Fade:
-                    if (musicSystem.FadeTrack(newTrack, playlistSwitchInFadeTime, volume))
+                    if (musicSystem.FadeTrack(newTrack, playlistSwitchInFadeTime, volume, _playbackTime))
                     {
                         _trackIndex++;
                         _totalTracksPlayed++;
                         Engage();
+                        _playbackTime = 0f;
                         return PlaybackState.FadeIn;
                     }
                     return currentState;
                 case PlaylistSwitchType.Cut:
-                    if (musicSystem.SwitchTrack(newTrack, volume))
+                    if (musicSystem.SwitchTrack(newTrack, volume, _playbackTime))
                     {
                         _trackIndex++;
                         _totalTracksPlayed++;
                         Engage();
+                        _playbackTime = 0f;
                         return PlaybackState.Playing;
                     }
 
@@ -243,7 +285,7 @@ namespace ORL.MusicSystem
             switch (trackTransitionType)
             {
                 case SwitchType.Fade:
-                    if (musicSystem.FadeTrack(newTrack, fadeTime, volume))
+                    if (musicSystem.FadeTrack(newTrack, fadeTime, volume, 0f))
                     {
                         _trackIndex++;
                         _totalTracksPlayed++;
@@ -252,7 +294,7 @@ namespace ORL.MusicSystem
                     return currentState;
                 // can't cross-fade if the playlist was paused/stopped
                 case SwitchType.CrossFade:
-                    if (musicSystem.FadeTrack(newTrack, crossFadeTime, volume))
+                    if (musicSystem.FadeTrack(newTrack, crossFadeTime, volume, 0f))
                     {
                         _trackIndex++;
                         _totalTracksPlayed++;
@@ -260,7 +302,7 @@ namespace ORL.MusicSystem
                     }
                     return currentState;
                 case SwitchType.Cut:
-                    if (musicSystem.SwitchTrack(newTrack, volume))
+                    if (musicSystem.SwitchTrack(newTrack, volume, 0f))
                     {
                         _trackIndex++;
                         _totalTracksPlayed++;
