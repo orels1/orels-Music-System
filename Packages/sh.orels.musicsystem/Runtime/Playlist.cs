@@ -103,8 +103,7 @@ namespace ORL.MusicSystem
         {
             _engaged = false;
             _engaging = false;
-            _playbackTime = musicSystem.PlaybackTime +
-                            (playlistSwitchOutType == PlaylistSwitchType.Fade ? playlistSwitchOutFadeTime : 0f);
+            SavePlaybackTime();
             musicSystem.SetSwitching(true);
             if (longBreakResetOnSwitch)
             {
@@ -123,6 +122,12 @@ namespace ORL.MusicSystem
                     musicSystem.SetState(this, PlaybackState.Paused);
                     break;
             }
+        }
+
+        public void SavePlaybackTime()
+        {
+            _playbackTime = musicSystem.PlaybackTime +
+                            (playlistSwitchOutType == PlaylistSwitchType.Fade ? playlistSwitchOutFadeTime : 0f);
         }
 
         public virtual PlaybackState HandleIdle()

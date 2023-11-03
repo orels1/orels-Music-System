@@ -467,6 +467,7 @@ namespace ORL.MusicSystem
         {
             if (currentPlaylist == null) return;
             _paused = true;
+            currentPlaylist.SavePlaybackTime();
             SwitchSources();   
             if (currentPlaylist.playlistSwitchOutType == PlaylistSwitchType.Fade)
             {
