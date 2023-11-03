@@ -56,6 +56,20 @@ Below are the changelogs for all of the releases of orels Music System
 
 ---
 
+## v1.1.0 Release {{ date: '2023-11-03T07:11:00+04:00' }}
+
+### <SparkleIcon /> Enhancemenets
+
+- Music will now resume from the position it was paused at. This is supported for both cutting and fading
+- Exiting a Playlist area and going back in while it is still fading out - will start fading it back in, isntead of waiting for it to end and going to the next track
+
+### <BugIcon /> Bug Fixes
+
+- Fading in and out should respect the current volume of the AudioSource. This avoids sudden volume changes
+- Passing through an area with no audio while fading one playlist out and entering anohter local playlist should no longer trigger a track pause
+
+---
+
 ## v1.0.1 Release {{ date: '2023-10-31T01:35:48+04:00' }}
 
 ### <BugIcon /> Bug Fixes
