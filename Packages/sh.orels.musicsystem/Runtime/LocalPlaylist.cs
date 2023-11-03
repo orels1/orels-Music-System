@@ -39,7 +39,10 @@ namespace ORL.MusicSystem
             }
 
             Debug.Log($"[MusicSystem][{name}] Player entered, no stay time, engaging");
-            musicSystem.SwitchPlaylist(this);
+            if (musicSystem.SwitchPlaylist(this))
+            {
+                _engaging = true;
+            }
         }
 
         private bool _switchAttempted;
@@ -55,7 +58,10 @@ namespace ORL.MusicSystem
                 {
                     Debug.Log($"[MusicSystem][{name}] Stay time ended, engaging");
                     _switchAttempted = true;
-                    musicSystem.SwitchPlaylist(this);
+                    if (musicSystem.SwitchPlaylist(this))
+                    {
+                        _engaging = true;
+                    }
                 }
             }
         }
@@ -63,7 +69,7 @@ namespace ORL.MusicSystem
         public override void OnPlayerTriggerExit(VRCPlayerApi player)
         {
             if (!player.isLocal) return;
-            if (!_engaged) return;
+            if (!_engaged && !_engaging) return;
             _stayTime = 0f;
             if (playerStayDelay > 0)
             {
@@ -77,7 +83,7 @@ namespace ORL.MusicSystem
 
         public void SwitchBack()
         {
-            if (!_engaged) return;
+            if (!_engaged && !_engaging) return;
             // ignore cases where we re-entered
             if (Time.timeSinceLevelLoad < _lastEnterTime + playerStayDelay) return;
             
