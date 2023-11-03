@@ -25,7 +25,10 @@ namespace ORL.MusicSystem
 
             if (autoPlay)
             {
-                musicSystem.SwitchPlaylist(this);
+                if (musicSystem.SwitchPlaylist(this))
+                {
+                    _engaging = true;
+                }
             }
         }
     }
