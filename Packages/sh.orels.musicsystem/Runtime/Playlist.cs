@@ -179,7 +179,10 @@ namespace ORL.MusicSystem
                     if (musicSystem.FadeTrack(newTrack, fadeTime, volume, _playbackTime))
                     {
                         _trackIndex++;
-                        _totalTracksPlayed++;
+                        if (!canResume)
+                        {
+                            _totalTracksPlayed++;
+                        }
                         return PlaybackState.FadeIn;
                     }
                     return currentState;
@@ -188,7 +191,10 @@ namespace ORL.MusicSystem
                     if (musicSystem.FadeTrack(newTrack, crossFadeTime, volume, _playbackTime))
                     {
                         _trackIndex++;
-                        _totalTracksPlayed++;
+                        if (!canResume)
+                        {
+                            _totalTracksPlayed++;
+                        }
                         return PlaybackState.FadeIn;
                     }
                     return currentState;
@@ -196,7 +202,10 @@ namespace ORL.MusicSystem
                     if (musicSystem.SwitchTrack(newTrack, volume, _playbackTime))
                     {
                         _trackIndex++;
-                        _totalTracksPlayed++;
+                        if (!canResume)
+                        {
+                            _totalTracksPlayed++;
+                        }
                         return PlaybackState.Playing;
                     }
 
@@ -233,7 +242,11 @@ namespace ORL.MusicSystem
                     if (musicSystem.FadeTrack(newTrack, playlistSwitchInFadeTime, volume, _playbackTime))
                     {
                         _trackIndex++;
-                        _totalTracksPlayed++;
+                        // only count these up when we start a fresh track
+                        if (!canResume)
+                        {
+                            _totalTracksPlayed++;
+                        }
                         Engage();
                         _playbackTime = 0f;
                         return PlaybackState.FadeIn;
@@ -243,7 +256,11 @@ namespace ORL.MusicSystem
                     if (musicSystem.SwitchTrack(newTrack, volume, _playbackTime))
                     {
                         _trackIndex++;
-                        _totalTracksPlayed++;
+                        // only count these up when we start a fresh track
+                        if (!canResume)
+                        {
+                            _totalTracksPlayed++;
+                        }
                         Engage();
                         _playbackTime = 0f;
                         return PlaybackState.Playing;
