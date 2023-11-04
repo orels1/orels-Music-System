@@ -273,7 +273,7 @@ namespace ORL.MusicSystem
             }
             
             var pauseFor = HandlePauseLogic();
-            if (longBreak && _totalTracksPlayed % longBreakTrackCount == 0)
+            if (longBreak && longBreakTrackCount > 0 && _totalTracksPlayed % longBreakTrackCount == 0)
             {
                 pauseFor = longBreakTime;
                 Debug.Log($"[MusicSystem][{name}] Long break for {pauseFor} seconds");
@@ -329,7 +329,7 @@ namespace ORL.MusicSystem
                 case SwitchType.Fade:
                     return PlaybackState.FadeOut;
                 case SwitchType.CrossFade:
-                    if (longBreak && _totalTracksPlayed % longBreakTrackCount == 0)
+                    if (longBreak && longBreakTrackCount > 0 && _totalTracksPlayed % longBreakTrackCount == 0)
                     {
                         return PlaybackState.FadeOut;
                     }
