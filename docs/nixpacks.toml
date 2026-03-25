@@ -1,2 +1,2 @@
 [variables]
-NEXT_PUBLIC_SITE_URL=https://musicsystem.orels.sh
+NEXT_PUBLIC_SITE_URL = 'https://musicsystem.orels.sh'
